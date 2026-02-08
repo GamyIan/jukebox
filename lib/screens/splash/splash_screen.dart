@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jukebox/screens/auth/login_screen.dart';
-import 'package:jukebox/screens/home/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../utils/asset_helper.dart'; // Added
+import '../auth/login_screen.dart';
+import '../main_navigator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -11,31 +12,52 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final supabase = Supabase.instance.client;
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
 
-  void nextScreen() async {
-    await Future.delayed(Duration(seconds: 2));
-    if (supabase.auth.currentSession == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      if (!mounted) return;
+      if (session != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigator()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    nextScreen();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: FlutterLogo(size: 150)));
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PixelAsset.getWidget(PixelAsset.title, size: 200),
+            const SizedBox(height: 40),
+            const CircularProgressIndicator(color: Color(0xFF1DB954)),
+          ],
+        ),
+      ),
+    );
   }
 }

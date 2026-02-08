@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jukebox/screens/auth/register_screen.dart';
-import 'package:jukebox/screens/home/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'register_screen.dart';
+import '../main_navigator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,81 +11,88 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-  bool loading = false;
-  final supabase = Supabase.instance.client;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void login() async {
-    setState(() {
-      loading = true;
-    });
+  void _login() async {
+    setState(() => _isLoading = true);
     try {
-      final result = await supabase.auth.signInWithPassword(
-        email: email.text,
-        password: password.text,
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-
-      if (result.user != null && result.session != null) {
-        Navigator.pushAndRemoveUntil(
+      if (mounted) {
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-          (context) => false,
+          MaterialPageRoute(builder: (context) => const MainNavigator()),
         );
       }
     } catch (e) {
-      print(e.toString());
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      setState(() {
-        loading = false;
-      });
+      setState(() => _isLoading = false);
     }
-  }
-
-  void signUp() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => RegisterScreen()),
-      (context) => false,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: ListView(
-        padding: const EdgeInsets.all(15),
-        children: [
-          TextFormField(
-            controller: email,
-            decoration: InputDecoration(hintText: "Email"),
-          ),
-          SizedBox(height: 15),
-
-          TextFormField(
-            controller: password,
-            decoration: InputDecoration(hintText: "Password"),
-          ),
-          SizedBox(height: 15),
-
-          loading
-              ? Center(child: CircularProgressIndicator())
-              : ElevatedButton(
-                  onPressed: () {
-                    login();
-                  },
-                  child: Text("Login"),
-                ),
-          SizedBox(height: 15),
-
-          TextButton(
-            onPressed: () {
-              signUp();
-            },
-            child: Text("Don't have an account? Register now!"),
-          ),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch, // Matches Register screen
+          children: [
+            const Text(
+              "Login to JukeBox",
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center, // Fixed syntax
+            ),
+            const SizedBox(height: 40),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+            _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF1DB954)),
+                  )
+                : ElevatedButton(
+                    onPressed: _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1DB954),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text("Login", style: TextStyle(fontSize: 18)),
+                  ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RegisterScreen()),
+              ),
+              child: const Text("Don't have an account? Create one"),
+            ),
+          ],
+        ),
       ),
     );
   }

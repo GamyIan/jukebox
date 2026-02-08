@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jukebox/screens/auth/login_screen.dart';
-import 'package:jukebox/screens/home/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'login_screen.dart';
+import '../main_navigator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -11,82 +11,101 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final username = TextEditingController();
-  bool loading = false;
-  final supabase = Supabase.instance.client;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void register() async {
-    setState(() {
-      loading = true;
-    });
+  void _register() async {
+    setState(() => _isLoading = true);
     try {
-      final result = await supabase.auth.signUp(
-        email: email.text,
-        password: password.text,
+      // Create user in Supabase
+      final response = await Supabase.instance.client.auth.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
 
-      if (result.user != null && result.session != null) {
+      if (response.user != null && mounted) {
+        // Automatically go to the main app after registration
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-          (context) => false,
+          MaterialPageRoute(builder: (context) => const MainNavigator()),
+          (route) => false,
         );
       }
     } catch (e) {
-      print(e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     } finally {
-      setState(() {
-        loading = false;
-      });
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-  }
-
-  void login() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-      (context) => false,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Register")),
-      body: ListView(
-        padding: const EdgeInsets.all(15),
-        children: [
-          TextFormField(
-            controller: email,
-            decoration: InputDecoration(hintText: "Email"),
-          ),
-          SizedBox(height: 15),
-
-          TextFormField(
-            controller: password,
-            decoration: InputDecoration(hintText: "Password"),
-          ),
-          SizedBox(height: 15),
-
-          loading
-              ? Center(child: CircularProgressIndicator())
-              : ElevatedButton(
-                  onPressed: () {
-                    register();
-                  },
-                  child: Text("Register"),
-                ),
-          SizedBox(height: 15),
-
-          TextButton(
-            onPressed: () {
-              login();
-            },
-            child: Text("Already have an account? Login now!"),
-          ),
-        ],
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "Join JukeBox",
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+            _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF1DB954)),
+                  )
+                : ElevatedButton(
+                    onPressed: _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1DB954),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text(
+                      "Register",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              child: const Text("Already have an account? Login"),
+            ),
+          ],
+        ),
       ),
     );
   }
