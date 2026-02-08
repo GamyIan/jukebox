@@ -1,16 +1,44 @@
-# eshaan_test
+# 🕹️ JukeBox
 
-A new Flutter project.
+**JukeBox** is a real-time, retro-styled music streaming application built with **Flutter** and **Supabase**. It features a pixel-perfect aesthetic inspired by 8-bit classics, combined with a modern music player experience.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- **Retro Aesthetic:** Custom pixel font (**Nihonium**) and hand-crafted pixel icons.
+- **Real-Time Streaming:** High-quality audio playback using `just_audio`.
+- **Dynamic Search:** Search through the database for your favorite tracks with instant results.
+- **Persistent Mini-Player:** Keep the music going while browsing other sections of the app.
+- **Secure Auth:** User login and registration powered by **Supabase Auth**.
+- **Browse & Discover:** Randomized discovery mode to find new sounds on the home screen.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠 Tech Stack
+
+| Technology     | Use Case                                 |
+| :------------- | :--------------------------------------- |
+| **Flutter**    | Cross-platform mobile framework          |
+| **Supabase**   | Backend, Database, & User Authentication |
+| **Just Audio** | Professional audio playback engine       |
+| **Nihonium**   | Custom pixel-art typography              |
+| **Dotenv**     | Secure environment variable management   |
+
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Prerequisites
+
+- Flutter SDK installed.
+- A Supabase project created.
+
+### 2. Environment Variables
+
+Create a `.env` file in the root directory and add your Supabase credentials:
+
+```env
+SUPABASE_URL=your_project_url
+SUPABASE_ANON_KEY=your_anon_key
+```
