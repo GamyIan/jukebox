@@ -48,6 +48,31 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _searchSongs(String query) async {
+    // If the user clears the search bar, show all songs again
+    if (query.isEmpty) {
+      _fetchInitialSongs();
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      // This filters the 'title' column for anything containing the query
+      final data = await supabase
+          .from('songs')
+          .select()
+          .ilike('title', '%$query%');
+
+      setState(() {
+        _songs = List<Map<String, dynamic>>.from(data);
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint("Search Error: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
               borderSide: BorderSide.none,
             ),
           ),
-          onChanged: (val) => _fetchInitialSongs(), // Simple refresh for now
+          onChanged: (val) => _searchSongs(val), // Simple refresh for now
         ),
       ),
       body: _isLoading

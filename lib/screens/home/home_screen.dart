@@ -105,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         label: const Text(
                           "START JAM SESSION",
                           style: TextStyle(
+                            fontFamily: 'Nihonium',
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
